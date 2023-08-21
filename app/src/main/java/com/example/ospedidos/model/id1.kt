@@ -1,7 +1,7 @@
 package com.example.ospedidos.model
 
-data class X1(
-    var `data`: String,
+data class id1(
+    var data: String,
     var embed: String,
     var id: String,
     var slug: String,
