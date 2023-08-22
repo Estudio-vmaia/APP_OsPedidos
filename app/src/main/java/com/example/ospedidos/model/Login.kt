@@ -1,6 +1,6 @@
 package com.example.ospedidos.model
 
-data class id1(
+data class Login(
     var data: String,
     var embed: String,
     var id: String,
