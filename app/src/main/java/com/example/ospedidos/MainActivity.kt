@@ -84,7 +84,7 @@ fun callApiLoginTeste() {
     var mediaType = "application/json"
     val body = "{\r\n    \"type\": \"CUPOM\",\r\n    \"format\": \"png\",\r\n    \"content\": \"aaa\"\r\n}".toRequestBody(mediaType)
     val request = Request.Builder()
-        .url("https://ospedidossandbox.com.br/API/login.php?usuario=renan.maia&senha=qa")
+        .url("https://ospedidos.com.br/API/login.php?usuario=renan.maia&senha=qa")
         .post(body)
         .addHeader("Content-Type", "application/json")
         .addHeader("Authorization", "Basic dXNlcmFwaTpLMzg3S1JneE9TbTZtRXZheUZVMjF4Q0Y2VlBQMG4=")
