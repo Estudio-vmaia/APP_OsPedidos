@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">OsPedidos</string>
+    <string name="app_name_title_login">Os Pedidos - LOGIN </string>
+    <string name="username_label">Usuário</string>
+    <string name="password_label">Senha</string>
+    <string name="login_button_label">ENTRAR</string>
 </resources>
