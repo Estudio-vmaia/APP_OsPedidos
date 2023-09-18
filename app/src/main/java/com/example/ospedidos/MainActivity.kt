@@ -5,10 +5,11 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.example.ospedidos.model.Autenticacao
 import com.example.ospedidos.service.api.Api
 import com.example.ospedidos.service.api.RetrofitInterface
@@ -18,33 +19,44 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            setContent {
-                OsPedidosTheme {
-                    LoginScreen {
-                    }
-                }
+            OsPedidosTheme {
+                MainContent()
             }
-            callApiLogin()
         }
     }
 
     @Composable
-    fun Greeting(name: String, modifier: Modifier = Modifier) {
-        Text(
-            text = "Hello $name!",
-            modifier = modifier
+    fun MainContent() {
+        var username by remember { mutableStateOf("") }
+        var password by remember { mutableStateOf("") }
+
+        LoginScreen(
+            username = username,
+            password = password,
+            onUsernameChange = { newUsername -> username = newUsername },
+            onPasswordChange = { newPassword -> password = newPassword },
+            onLoginClick = { callApiLogin() }
         )
     }
 
-    @Preview(showBackground = true)
     @Composable
-    fun GreetingPreview() {
-        OsPedidosTheme {
-            Greeting("Android")
-        }
+    fun MainContent(
+        username: String,
+        password: String,
+        onUsernameChange: (String) -> Unit,
+        onPasswordChange: (String) -> Unit
+    ) {
+        LoginScreen(
+            username = username,
+            password = password,
+            onUsernameChange = onUsernameChange,
+            onPasswordChange = onPasswordChange,
+            onLoginClick = { callApiLogin()}
+        )
     }
 
     fun callApiLogin() {
