@@ -1,5 +1,5 @@
 package com.example.ospedidos.model
 
-data class Autenticacao(
+data class Authenticator(
     val login: Login
 )

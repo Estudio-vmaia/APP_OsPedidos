@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginScreen">
+
+    <composable
+        android:id="@+id/loginScreen"
+        android:name="com.example.ospedidos.ui.theme.view.LoginScreen"
+        android:label="LoginScreen" />
+
+    <composable
+        android:id="@+id/resetPasswordLoginScreen"
+        android:name="com.example.ospedidos.ui.theme.view.ResetPasswordLoginScreen"
+        android:label="ResetPasswordLoginScreen" />
+
+    <composable
+        android:id="@+id/sendTokenScreen"
+        android:name="com.example.ospedidos.ui.theme.view.SendTokenScreen"
+        android:label="SendTokenScreen" />
+
+    <composable
+        android:id="@+id/moduleScreen"
+        android:name="com.example.ospedidos.ui.theme.view.ModuleScreen"
+        android:label="ModuleScreen" />
+
+    <composable
+        android:id="@+id/eventScreen"
+        android:name="com.example.ospedidos.ui.theme.view.EventScreen"
+        android:label="EventScreen" />
+    <composable
+        android:id="@+id/storeCategoryScreen"
+        android:name="com.example.ospedidos.ui.theme.view.StoreCategoryScreen"
+        android:label="StoreCategoryScreen" />
+
+    <!-- actions -->
+    <action
+        android:id="@+id/action_loginScreen_to_resetPasswordLoginScreen"
+        app:destination="@id/resetPasswordLoginScreen" />
+    <action
+        android:id="@+id/action_loginSendSMSScreen_to_sendTokenScreen"
+        app:destination="@id/sendTokenScreen" />
+    <action
+        android:id="@+id/action_sendTokenScreen_to_moduleScreen"
+        app:destination="@id/moduleScreen" />
+    <action
+        android:id="@+id/action_moduleScreen_to_eventScreen"
+        app:destination="@id/eventScreen" />
+    <action
+        android:id="@+id/action_eventScreen_to_storeCategoryScreen"
+        app:destination="@id/storeCategoryScreen" />
+
+</navigation>

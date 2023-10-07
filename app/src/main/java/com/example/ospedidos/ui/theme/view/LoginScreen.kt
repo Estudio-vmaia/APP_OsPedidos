@@ -1,10 +1,8 @@
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
@@ -15,10 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.*
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,7 +27,8 @@ fun LoginScreen(
     password: String,
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit
 ) {
     val blueColor = colorResource(id = R.color.blue_pedidos)
     val focusRequester = remember { FocusRequester() }
@@ -48,13 +44,6 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(264.dp) //
-                    .padding(bottom = 0.dp),
-                colorFilter = ColorFilter.tint(blueColor)            )
             TextField(
                 value = username,
                 onValueChange = { onUsernameChange(it) },
@@ -91,19 +80,28 @@ fun LoginScreen(
             ) {
                 Text(text = stringResource(id = R.string.login_button_label))
             }
+            Button(
+                onClick = { onForgotPasswordClick() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp)
+            ) {
+                Text(text = "Esqueceu sua senha?")
+            }
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun LoginScreenPreview() {
-    // Fornecer valores padrão para os parâmetros da função original
     LoginScreen(
         username = "renan.maia",
         password = "qa",
         onUsernameChange = {},
         onPasswordChange = {},
-        onLoginClick = {}
+        onLoginClick = {},
+        onForgotPasswordClick = {}
     )
 }
