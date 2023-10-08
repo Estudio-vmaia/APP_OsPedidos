@@ -12,8 +12,8 @@ interface RetrofitInterface {
     fun loginApi(
         @Header("Content-Type") contentType: String,
         @Header("Authorization") authorization: String,
-        @Query("senha") password: String?,
-        @Query("usuario") phoneNumber: String?
+        @Query("usuario") phoneNumber: String?,
+        @Query("senha") password: String?
 
 
     ): Call<Authenticator?>
@@ -23,7 +23,5 @@ interface RetrofitInterface {
         @Header("Authorization") authorization: String,
         @Query("usuario") user: String?,
         @Query("senha") password: String?
-
-
     ): Call<Authenticator?>
 }

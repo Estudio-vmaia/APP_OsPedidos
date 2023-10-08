@@ -50,9 +50,11 @@ class MainActivity : ComponentActivity() {
                 LoginScreen(
                     username = username,
                     password = password,
-                    onUsernameChange = {},
-                    onPasswordChange = {},
-                    onLoginClick = {},
+                    onUsernameChange = { newUsername -> username = newUsername },
+                    onPasswordChange = { newPassword -> password = newPassword },
+                    onLoginClick = {
+                        callLogin(username, password, navController)
+                    },
                     onForgotPasswordClick = {
                         navController.navigate("resetPasswordLoginScreen")
                     }
@@ -98,15 +100,16 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-fun callLogin(phoneNumber: String, password: String, navController: NavController) {
-    val numericPhoneNumber = phoneNumber.filter { it.isDigit() }
+fun callLogin(username: String, password: String, navController: NavController) {
+    val numericPhoneNumber = username.filter { it.isDigit() }
 
     val service: RetrofitInterface = Api().service
     val call: Call<Authenticator?>? = service.loginApi(
         "application/json",
         "Basic dXNlcmFwaTphSzM4N0tSZ3hPU202bUV2YXlGVTIxeENGNlZQUDBu",
         numericPhoneNumber,
-        "qa"
+        password
+
     )
 
     call?.enqueue(object : Callback<Authenticator?> {
@@ -117,7 +120,6 @@ fun callLogin(phoneNumber: String, password: String, navController: NavControlle
             val authentication: Authenticator? = response.body()
             if (response.isSuccessful) {
                 Log.d("Response", "ResponseApi ok -> " + authentication.toString())
-
                 navController.navigate("moduleScreen")
             } else {
                 Log.d("Response", "ResponseApi ERROR -> " + response.message())

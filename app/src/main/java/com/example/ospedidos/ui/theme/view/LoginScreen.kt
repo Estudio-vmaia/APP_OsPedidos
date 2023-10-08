@@ -9,18 +9,21 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.*
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ospedidos.R
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun LoginScreen(
     username: String,
@@ -32,6 +35,12 @@ fun LoginScreen(
 ) {
     val blueColor = colorResource(id = R.color.blue_pedidos)
     val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+
+    LaunchedEffect(key1 = Unit) {
+        focusRequester.requestFocus()
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -46,7 +55,16 @@ fun LoginScreen(
         ) {
             TextField(
                 value = username,
-                onValueChange = { onUsernameChange(it) },
+                onValueChange = { newValue ->
+                    if (newValue.length <= 11) {
+                        onUsernameChange(newValue)
+                    }
+                },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
                 label = { Text(text = stringResource(id = R.string.username_label)) },
                 leadingIcon = {
                     Icon(
@@ -54,26 +72,33 @@ fun LoginScreen(
                         contentDescription = null
                     )
                 },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            )
-
-            TextField(
-                value = password,
-                onValueChange = { onPasswordChange(it) },
-                label = { Text(text = stringResource(id = R.string.password_label)) },
-                leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = null) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
                     .focusRequester(focusRequester)
             )
 
+            TextField(
+                value = password,
+                onValueChange = { newValue ->
+                    onPasswordChange(newValue)
+                },
+                label = { Text(text = stringResource(id = R.string.password_label)) },
+                leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = null) },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            )
+
             Button(
-                onClick = { onLoginClick() },
+                onClick = {
+                    onLoginClick()
+                    keyboardController?.hide()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
@@ -84,7 +109,6 @@ fun LoginScreen(
                 onClick = { onForgotPasswordClick() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp)
             ) {
                 Text(text = "Esqueceu sua senha?")
             }
