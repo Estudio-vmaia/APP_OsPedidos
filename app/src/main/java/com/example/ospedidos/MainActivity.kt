@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -35,17 +36,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             OsPedidosTheme {
-                MainContent()
+                val navController = rememberNavController()
+                MainContent(navController)
             }
         }
     }
 
     @Composable
-    fun MainContent() {
+    fun MainContent(navController: NavHostController) {
+        val modulesState = remember { mutableStateOf<List<Modulo>>(emptyList()) } // Estado para os módulos
         var username by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
         var phoneNumber by remember { mutableStateOf("") }
-        val navController = rememberNavController()
 
         NavHost(navController, startDestination = "loginScreen") {
             composable("loginScreen") {
@@ -55,7 +57,16 @@ class MainActivity : ComponentActivity() {
                     onUsernameChange = { newUsername -> username = newUsername },
                     onPasswordChange = { newPassword -> password = newPassword },
                     onLoginClick = {
-                        callLogin(username, password, navController)
+                        callLogin(username, password, navController) { listaDeModulos ->
+                            if (listaDeModulos != null) {
+                                modulesState.value = listaDeModulos // Atualize o estado dos módulos
+                                navController.navigate("moduleScreen") {
+                                    popUpTo("loginScreen") { inclusive = true }
+                                }
+                            } else {
+                                // Lidar com o erro
+                            }
+                        }
                     },
                     onForgotPasswordClick = {
                         navController.navigate("resetPasswordLoginScreen")
@@ -84,9 +95,7 @@ class MainActivity : ComponentActivity() {
                 )
             }
             composable("moduleScreen") {
-                ModuleScreen(
-                    navController = navController
-                )
+                ModuleScreen(navController = navController,modulesState = modulesState)
             }
             composable("eventScreen") {
                 EventScreen(
@@ -107,7 +116,12 @@ class MainActivity : ComponentActivity() {
     Log.d("Embed:", "-> $embed")
     Log.d("User:", "-> $user")
 }*/
-fun callLogin(username: String, password: String, navController: NavController) {
+fun callLogin(
+    username: String,
+    password: String,
+    navController: NavController,
+    onComplete: (List<Modulo>?) -> Unit // Adicione esta função de callback
+) {
     val numericPhoneNumber = username.filter { it.isDigit() }
 
     val service: RetrofitInterface = Api().service
@@ -116,7 +130,6 @@ fun callLogin(username: String, password: String, navController: NavController) 
         "Basic dXNlcmFwaTphSzM4N0tSZ3hPU202bUV2YXlGVTIxeENGNlZQUDBu",
         numericPhoneNumber,
         password
-
     )
 
     call?.enqueue(object : Callback<Authenticator?> {
@@ -131,13 +144,17 @@ fun callLogin(username: String, password: String, navController: NavController) 
                 var embed = authentication?.login?.embed
                 var user = authentication?.login?.usuario
 
-                callModules(slug, embed, user, navController) { modulos ->
-                    if (modulos != null) {
-                        navController.navigate("moduleScreen")
+                callModules(slug, embed, user, navController) { listaDeModulos ->
+                    if (listaDeModulos != null) {
+                        onComplete(listaDeModulos) // Chame o callback com a lista de módulos
+                        navController.navigate("moduleScreen") {
+                            popUpTo("loginScreen") { inclusive = true }
+                        }
                     } else {
-                        // Lidere com o erro
+                        // Lidar com o erro
                     }
                 }
+
             } else {
                 Log.d("Response", "ResponseApi ERROR -> " + response.message())
 
