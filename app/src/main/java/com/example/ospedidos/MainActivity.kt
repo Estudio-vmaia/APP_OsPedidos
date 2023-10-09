@@ -18,17 +18,17 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.ospedidos.model.Authenticator
+import com.example.ospedidos.model.login.Authenticator
 import com.example.ospedidos.service.api.Api
 import com.example.ospedidos.service.api.RetrofitInterface
 import com.example.ospedidos.ui.theme.OsPedidosTheme
+import com.example.ospedidos.ui.theme.view.ModuleScreen
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -82,9 +82,9 @@ class MainActivity : ComponentActivity() {
                 )
             }
             composable("moduleScreen") {
-                /*  ModuleScreen(
+                  ModuleScreen(
                       navController = navController
-                  )*/
+                  )
             }
             composable("eventScreen") {
                 EventScreen(
@@ -100,6 +100,11 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/*fun initValuesModules(slug: String?, embed: String?, user: String?){ //replace or persist with shared preferences
+    Log.d("Slug:", "-> $slug")
+    Log.d("Embed:", "-> $embed")
+    Log.d("User:", "-> $user")
+}*/
 fun callLogin(username: String, password: String, navController: NavController) {
     val numericPhoneNumber = username.filter { it.isDigit() }
 
@@ -120,7 +125,11 @@ fun callLogin(username: String, password: String, navController: NavController) 
             val authentication: Authenticator? = response.body()
             if (response.isSuccessful) {
                 Log.d("Response", "ResponseApi ok -> " + authentication.toString())
-                navController.navigate("moduleScreen")
+                var slug = authentication?.login?.slug
+                var embed = authentication?.login?.embed
+                var user = authentication?.login?.usuario
+
+                callModules(slug, embed, user, navController)
             } else {
                 Log.d("Response", "ResponseApi ERROR -> " + response.message())
 
@@ -165,6 +174,39 @@ fun callResetPasswordLogin(phoneNumber: String, navController: NavController) {
         }
     })
 }
+
+fun callModules(slug: String?, embed: String?, username: String?, navController: NavController) {
+
+    val service: RetrofitInterface = Api().service
+    val call: Call<Authenticator?>? = service.modules(
+        "application/json",
+        "Basic dXNlcmFwaTphSzM4N0tSZ3hPU202bUV2YXlGVTIxeENGNlZQUDBu",
+        slug,
+        embed,
+        username
+    )
+
+    call?.enqueue(object : Callback<Authenticator?> {
+        override fun onResponse(
+            call: Call<Authenticator?>,
+            response: Response<Authenticator?>
+        ) {
+            val authentication: Authenticator? = response.body()
+            if (response.isSuccessful) {
+                Log.d("Response", "ResponseApi ok -> " + authentication.toString())
+                navController.navigate("moduleScreen")
+            } else {
+                Log.d("Response", "ResponseApi ERROR -> " + response.message())
+
+            }
+        }
+
+        override fun onFailure(call: Call<Authenticator?>, t: Throwable) {
+            Log.d("Response", "ResponseApi FAILURE -> " + t.printStackTrace().toString())
+        }
+    })
+}
+
 
 
 

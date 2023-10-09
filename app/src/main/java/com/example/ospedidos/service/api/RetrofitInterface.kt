@@ -1,6 +1,6 @@
 package com.example.ospedidos.service.api
 
-import com.example.ospedidos.model.Authenticator
+import com.example.ospedidos.model.login.Authenticator
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -23,5 +23,14 @@ interface RetrofitInterface {
         @Header("Authorization") authorization: String,
         @Query("usuario") user: String?,
         @Query("senha") password: String?
+    ): Call<Authenticator?>
+
+    @GET("/API/modulos.php?")
+    fun modules(
+        @Header("Content-Type") contentType: String,
+        @Header("Authorization") authorization: String,
+        @Query("slug") slug: String?,
+        @Query("embed") embed: String?,
+        @Query("usuario") user: String?
     ): Call<Authenticator?>
 }

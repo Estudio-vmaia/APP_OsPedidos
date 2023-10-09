@@ -21,7 +21,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import com.example.ospedidos.R
+import com.example.ospedidos.callLogin
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -36,6 +38,8 @@ fun LoginScreen(
     val blueColor = colorResource(id = R.color.blue_pedidos)
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val navController = rememberNavController()
+
 
 
     LaunchedEffect(key1 = Unit) {
@@ -98,6 +102,7 @@ fun LoginScreen(
                 onClick = {
                     onLoginClick()
                     keyboardController?.hide()
+
                 },
                 modifier = Modifier
                     .fillMaxWidth()

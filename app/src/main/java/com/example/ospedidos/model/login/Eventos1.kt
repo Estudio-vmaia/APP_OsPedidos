@@ -1,4 +1,4 @@
-package com.example.ospedidos.model
+package com.example.ospedidos.model.login
 
 data class Eventos1(
     var acumulativo: String,

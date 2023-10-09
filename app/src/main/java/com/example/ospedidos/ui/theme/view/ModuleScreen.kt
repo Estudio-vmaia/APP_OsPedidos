@@ -1,96 +1,61 @@
 package com.example.ospedidos.ui.theme.view
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.ospedidos.ui.theme.OsPedidosTheme
-import org.json.JSONObject
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
-class ModuleScreen : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            val json = """{
-                "arrayName": "modulos",
-                "arrayColunas": "id,idModulo,idCliente,cliente,slug,embed,ativo,validade,dataCadastro",
-                "arrayKeys": 2,
-                "modulos": {
-                    "modulos1": {
-                        "nomeModulo": "Eventos",
-                        "urlModulo": "eventos",
-                        "id": "1",
-                        "idModulo": "1",
-                        "idCliente": "11",
-                        "cliente": "Matriz",
-                        "slug": "matriz",
-                        "embed": "matris",
-                        "ativo": "1",
-                        "validade": "20231231",
-                        "dataCadastro": "20230907"
-                    },
-                    "modulos2": {
-                        "nomeModulo": "Loja",
-                        "urlModulo": "loja",
-                        "id": "2",
-                        "idModulo": "2",
-                        "idCliente": "11",
-                        "cliente": "Matriz",
-                        "slug": "matriz",
-                        "embed": "matris",
-                        "ativo": "1",
-                        "validade": "20231231",
-                        "dataCadastro": "20230907"
-                    }
-                }
-            }"""
-
-            val moduleData = parseModuleData(json)
-
-            OsPedidosTheme {
-                ModuleScreenContent(moduleData)
-            }
-        }
-    }
-
-    data class ModuleData(val moduleName: String, val moduleUrl: String)
-
-    private fun parseModuleData(jsonString: String): List<ModuleData> {
-        val jsonObject = JSONObject(jsonString)
-        val moduleList = mutableListOf<ModuleData>()
-        val modulosObject = jsonObject.getJSONObject("modulos")
-
-        modulosObject.keys().forEach { key ->
-            val moduleObject = modulosObject.getJSONObject(key)
-            val moduleName = moduleObject.getString("nomeModulo")
-            val moduleUrl = moduleObject.getString("urlModulo")
-            moduleList.add(ModuleData(moduleName, moduleUrl))
-        }
-
-        return moduleList
-    }
-
-    @Composable
-    fun ModuleScreenContent(moduleData: List<ModuleData>) {
-        Column(
-            modifier = Modifier.fillMaxSize()
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ModuleScreen(
+    navController: NavController
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Os Pedidos - EVENTOS"
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = { navController.navigate("storeCategoryScreen")},
+            modifier = Modifier.fillMaxWidth()
         ) {
-            moduleData.forEach { data ->
-                Button(
-                    onClick = {
-
-                    },
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(text = data.moduleName)
-                }
-            }
+            Text(text = "Quermesse 2023")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "QUERMESSE 2027")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "Voltar")
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun ModuleScreenPreview() {
+    val navController = rememberNavController()
+    ModuleScreen(navController = navController)
+
 }
