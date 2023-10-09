@@ -23,14 +23,14 @@ fun ModuleScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Os Pedidos - EVENTOS"
+            text = "Os Pedidos - MODULOS"
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = { navController.navigate("storeCategoryScreen")},
+            onClick = { navController.navigate("eventScreen")},
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Quermesse 2023")
+            Text(text = "EVENTOS")
         }
         Spacer(modifier = Modifier.height(16.dp))
         Button(
@@ -38,7 +38,7 @@ fun ModuleScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "QUERMESSE 2027")
+            Text(text = "LOJA")
         }
         Spacer(modifier = Modifier.height(16.dp))
         Button(
