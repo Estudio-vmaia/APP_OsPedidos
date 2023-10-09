@@ -1,6 +1,7 @@
 package com.example.ospedidos.service.api
 
 import com.example.ospedidos.model.login.Authenticator
+import com.example.ospedidos.model.modules.ModuloResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -17,6 +18,7 @@ interface RetrofitInterface {
 
 
     ): Call<Authenticator?>
+
     @GET("/API/loginSMS.php?")
     fun resetPasswordLogin(
         @Header("Content-Type") contentType: String,
@@ -32,5 +34,5 @@ interface RetrofitInterface {
         @Query("slug") slug: String?,
         @Query("embed") embed: String?,
         @Query("usuario") user: String?
-    ): Call<Authenticator?>
+    ): Call<ModuloResponse?>?
 }
