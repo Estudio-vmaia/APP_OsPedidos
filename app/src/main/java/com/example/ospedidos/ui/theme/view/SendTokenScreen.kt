@@ -1,3 +1,4 @@
+import android.os.CountDownTimer
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -10,7 +11,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import android.os.CountDownTimer
 import com.example.ospedidos.callResetPasswordLogin
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,7 +76,12 @@ fun SendTokenScreen(
 
         if (isCountingDown) {
             Text(
-                text = "Tempo restante: ${remainingTime / 60}:${String.format("%02d", remainingTime % 60)}",
+                text = "Tempo restante: ${remainingTime / 60}:${
+                    String.format(
+                        "%02d",
+                        remainingTime % 60
+                    )
+                }",
                 fontSize = 16.sp,
                 color = Color.Gray,
                 modifier = Modifier.padding(top = 16.dp)

@@ -1,5 +1,6 @@
 package com.example.ospedidos.service.api
 
+import com.example.ospedidos.model.event.EventResponse
 import com.example.ospedidos.model.login.Authenticator
 import com.example.ospedidos.model.modules.ModuloResponse
 import retrofit2.Call
@@ -35,4 +36,13 @@ interface RetrofitInterface {
         @Query("embed") embed: String?,
         @Query("usuario") user: String?
     ): Call<ModuloResponse?>?
+
+    @GET("/API/eventos.php?")
+    fun event(
+        @Header("Content-Type") contentType: String,
+        @Header("Authorization") authorization: String,
+        @Query("slug") slug: String?,
+        @Query("embed") embed: String?,
+        @Query("usuario") user: String?
+    ): Call<EventResponse>?
 }

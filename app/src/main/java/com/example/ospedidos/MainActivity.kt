@@ -1,10 +1,10 @@
 package com.example.ospedidos
 
-import EventScreen
 import LoginScreen
 import ResetPasswordLoginScreen
 import SendTokenScreen
 import StoreCategoryScreen
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -19,19 +19,26 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.ospedidos.model.event.Event
+import com.example.ospedidos.model.event.EventResponse
 import com.example.ospedidos.model.login.Authenticator
 import com.example.ospedidos.model.modules.Modulo
 import com.example.ospedidos.model.modules.ModuloResponse
 import com.example.ospedidos.service.api.Api
 import com.example.ospedidos.service.api.RetrofitInterface
 import com.example.ospedidos.ui.theme.OsPedidosTheme
+import com.example.ospedidos.ui.theme.view.EventScreen
 import com.example.ospedidos.ui.theme.view.ModuleScreen
+import com.example.ospedidos.utils.SharedPreferenceManager
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 
 class MainActivity : ComponentActivity() {
+
+    lateinit var appContext: Context
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -40,14 +47,17 @@ class MainActivity : ComponentActivity() {
                 MainContent(navController)
             }
         }
+        appContext = this
+
     }
 
     @Composable
     fun MainContent(navController: NavHostController) {
-        val modulesState = remember { mutableStateOf<List<Modulo>>(emptyList()) } // Estado para os módulos
+        val modulesState = remember { mutableStateOf<List<Modulo>>(emptyList()) }
         var username by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
         var phoneNumber by remember { mutableStateOf("") }
+
 
         NavHost(navController, startDestination = "loginScreen") {
             composable("loginScreen") {
@@ -57,7 +67,7 @@ class MainActivity : ComponentActivity() {
                     onUsernameChange = { newUsername -> username = newUsername },
                     onPasswordChange = { newPassword -> password = newPassword },
                     onLoginClick = {
-                        callLogin(username, password, navController) { listaDeModulos ->
+                        callLogin(appContext, username, password, navController) { listaDeModulos ->
                             if (listaDeModulos != null) {
                                 modulesState.value = listaDeModulos // Atualize o estado dos módulos
                                 navController.navigate("moduleScreen") {
@@ -95,12 +105,10 @@ class MainActivity : ComponentActivity() {
                 )
             }
             composable("moduleScreen") {
-                ModuleScreen(navController = navController,modulesState = modulesState)
+                ModuleScreen(navController = navController, modulesState = modulesState)
             }
             composable("eventScreen") {
-                EventScreen(
-                    navController = navController
-                )
+                EventScreen(navController = navController)
             }
             composable("storeCategoryScreen") {
                 StoreCategoryScreen(
@@ -117,6 +125,7 @@ class MainActivity : ComponentActivity() {
     Log.d("User:", "-> $user")
 }*/
 fun callLogin(
+    context: Context,
     username: String,
     password: String,
     navController: NavController,
@@ -144,11 +153,23 @@ fun callLogin(
                 var embed = authentication?.login?.embed
                 var user = authentication?.login?.usuario
 
+                SharedPreferenceManager.saveLoginData(context, slug, embed, user)
+
                 callModules(slug, embed, user, navController) { listaDeModulos ->
                     if (listaDeModulos != null) {
                         onComplete(listaDeModulos) // Chame o callback com a lista de módulos
                         navController.navigate("moduleScreen") {
                             popUpTo("loginScreen") { inclusive = true }
+                        }
+                        if (slug != null && embed != null && user != null) {
+                            callEvent(context, slug, embed, user, navController) { listaDeEventos ->
+                                if (listaDeEventos != null) {
+                                    SharedPreferenceManager.saveEventList(context, listaDeEventos)
+                                    navController.navigate("eventScreen")
+                                }
+                            }
+                        } else {
+                            // Lidar com a ausência de valores nas preferências compartilhadas
                         }
                     } else {
                         // Lidar com o erro
@@ -242,6 +263,49 @@ fun callModules(
     })
 }
 
+fun callEvent(
+    context: Context,
+    slug: String?,
+    embed: String?,
+    username: String?,
+    navController: NavController,
+    onComplete: (List<Event>?) -> Unit
+) {
+    val service: RetrofitInterface = Api().service
+    val call: Call<EventResponse>? = service.event(
+        "application/json",
+        "Basic dXNlcmFwaTphSzM4N0tSZ3hPU202bUV2YXlGVTIxeENGNlZQUDBu",
+        slug,
+        embed,
+        username
+    )
+
+    call?.enqueue(object : Callback<EventResponse?> {
+        override fun onResponse(call: Call<EventResponse?>, response: Response<EventResponse?>) {
+            if (response.isSuccessful) {
+                val eventResponse = response.body()
+                if (eventResponse != null) {
+                    val eventList: List<Event> = eventResponse.eventos
+                    Log.d("callEvent", "Event list: $eventList")
+                    onComplete(eventList)
+                    SharedPreferenceManager.saveEventList(context, eventList)
+
+                } else {
+                    Log.d("callEvent", "Event response is null")
+                    onComplete(null)
+                }
+            } else {
+                Log.d("callEvent", "ResponseApi ERROR -> " + response.message())
+                onComplete(null)
+            }
+        }
+
+        override fun onFailure(call: Call<EventResponse?>, t: Throwable) {
+            Log.d("Response", "ResponseApi FAILURE -> " + t.printStackTrace().toString())
+            onComplete(null)
+        }
+    })
+}
 
 
 

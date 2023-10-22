@@ -7,9 +7,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.ospedidos.model.event.Event
 import com.example.ospedidos.model.modules.Modulo
+import com.example.ospedidos.model.modules.ModuloResponse
+import com.google.gson.Gson
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -18,6 +23,8 @@ fun ModuleScreen(
     modulesState: State<List<Modulo>>
 ) {
     val modules = modulesState.value
+    var eventList by remember { mutableStateOf(emptyList<Event>()) }
+
 
     LazyColumn(
         modifier = Modifier
@@ -38,9 +45,14 @@ fun ModuleScreen(
         itemsIndexed(modules) { index, modulo ->
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = {
-                    // Aqui você pode lidar com a navegação ou outra lógica com base no módulo
-                },
+                    onClick = {
+                        if (modulo.nomeModulo == "Eventos") {
+                            // Chame a função callEvents com os parâmetros apropriados
+                           navController.navigate("eventScreen")
+                        } else {
+                            // Lógica para lidar com outros módulos
+                        }
+                    },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = modulo.nomeModulo)
@@ -53,22 +65,56 @@ fun ModuleScreen(
                 onClick = { navController.popBackStack() }, // Navegar de volta
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Voltar")
+                Text(text = "SAIR")
             }
         }
     }
 }
-
-
-
-
-
-
-/*@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun ModuleScreenPreview() {
     val navController = rememberNavController()
-    ModuleScreen(navController = navController,  )
 
-}*/
+    val json = """
+        {
+            "arrayName": "modulos",
+            "arrayColunas": "id,idModulo,idCliente,cliente,slug,embed,ativo,validade,dataCadastro",
+            "arrayKeys": 2,
+            "modulos": [
+                {
+                    "nomeModulo": "Eventos",
+                    "urlModulo": "eventos",
+                    "id": "1",
+                    "idModulo": "1",
+                    "idCliente": "11",
+                    "cliente": "Matriz",
+                    "slug": "matriz",
+                    "embed": "matris",
+                    "ativo": "1",
+                    "validade": "20231231",
+                    "dataCadastro": "20230907"
+                },
+                {
+                    "nomeModulo": "Loja",
+                    "urlModulo": "loja",
+                    "id": "2",
+                    "idModulo": "2",
+                    "idCliente": "11",
+                    "cliente": "Matriz",
+                    "slug": "matriz",
+                    "embed": "matris",
+                    "ativo": "1",
+                    "validade": "20231231",
+                    "dataCadastro": "20230907"
+                }
+            ]
+        }
+    """
+
+    val gson = Gson()
+    val data = gson.fromJson(json, ModuloResponse::class.java)
+
+    ModuleScreen(navController = navController, modulesState = remember { mutableStateOf(data.modulos) })
+}
+
