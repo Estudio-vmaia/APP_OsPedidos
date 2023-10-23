@@ -1,5 +1,6 @@
 package com.example.ospedidos.service.api
 
+import com.example.ospedidos.model.category.CategoryResponse
 import com.example.ospedidos.model.event.EventResponse
 import com.example.ospedidos.model.login.Authenticator
 import com.example.ospedidos.model.modules.ModuloResponse
@@ -45,4 +46,14 @@ interface RetrofitInterface {
         @Query("embed") embed: String?,
         @Query("usuario") user: String?
     ): Call<EventResponse>?
+
+    @GET("/API/categorias.php?")
+    fun category(
+        @Header("Content-Type") contentType: String,
+        @Header("Authorization") authorization: String,
+        @Query("slug") slug: String?,
+        @Query("embed") embed: String?,
+        @Query("usuario") user: String?,
+        @Query("idEvento") idEvent: String?,
+    ): Call<CategoryResponse>?
 }

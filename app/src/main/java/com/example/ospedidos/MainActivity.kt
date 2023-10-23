@@ -1,9 +1,9 @@
 package com.example.ospedidos
 
+import CategoryScreen
 import LoginScreen
 import ResetPasswordLoginScreen
 import SendTokenScreen
-import StoreCategoryScreen
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -19,6 +19,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.ospedidos.model.category.Category
+import com.example.ospedidos.model.category.CategoryResponse
 import com.example.ospedidos.model.event.Event
 import com.example.ospedidos.model.event.EventResponse
 import com.example.ospedidos.model.login.Authenticator
@@ -110,8 +112,8 @@ class MainActivity : ComponentActivity() {
             composable("eventScreen") {
                 EventScreen(navController = navController)
             }
-            composable("storeCategoryScreen") {
-                StoreCategoryScreen(
+            composable("categoryScreen") {
+                CategoryScreen(
                     navController = navController
                 )
             }
@@ -152,6 +154,7 @@ fun callLogin(
                 var slug = authentication?.login?.slug
                 var embed = authentication?.login?.embed
                 var user = authentication?.login?.usuario
+                var idEvent: String
 
                 SharedPreferenceManager.saveLoginData(context, slug, embed, user)
 
@@ -165,7 +168,25 @@ fun callLogin(
                             callEvent(context, slug, embed, user, navController) { listaDeEventos ->
                                 if (listaDeEventos != null) {
                                     SharedPreferenceManager.saveEventList(context, listaDeEventos)
-                                    navController.navigate("eventScreen")
+                                    idEvent = listaDeEventos[0].id
+                                    SharedPreferenceManager.saveIdEvent(context, idEvent)
+                                    if (slug != null && embed != null && user != null && idEvent != null) {
+
+                                        callCategory(context, slug, embed, user, idEvent, navController) { listaDeCategorias ->
+                                            if (listaDeCategorias != null) {
+                                                SharedPreferenceManager.saveCategoryList(
+                                                    context,
+                                                    listaDeCategorias
+                                                )
+                                                val idEvent = listaDeCategorias[0].id_categoria
+                                                SharedPreferenceManager.saveIdEvent(
+                                                    context,
+                                                    idEvent
+                                                )
+                                            }
+                                        }
+
+                                    }
                                 }
                             }
                         } else {
@@ -301,6 +322,57 @@ fun callEvent(
         }
 
         override fun onFailure(call: Call<EventResponse?>, t: Throwable) {
+            Log.d("Response", "ResponseApi FAILURE -> " + t.printStackTrace().toString())
+            onComplete(null)
+        }
+    })
+}
+
+fun callCategory(
+    context: Context,
+    slug: String?,
+    embed: String?,
+    username: String?,
+    idEvent: String?,
+    navController: NavController,
+    onComplete: (List<Category>?) -> Unit
+) {
+    val idEvent = SharedPreferenceManager.getIdEvent(context)
+
+    val service: RetrofitInterface = Api().service
+    val call: Call<CategoryResponse>? = service.category(
+        "application/json",
+        "Basic dXNlcmFwaTphSzM4N0tSZ3hPU202bUV2YXlGVTIxeENGNlZQUDBu",
+        slug,
+        embed,
+        username,
+        idEvent
+    )
+
+    call?.enqueue(object : Callback<CategoryResponse?> {
+        override fun onResponse(
+            call: Call<CategoryResponse?>,
+            response: Response<CategoryResponse?>
+        ) {
+            if (response.isSuccessful) {
+                val categoryResponse = response.body()
+                if (categoryResponse != null) {
+                    val categoryList: List<Category> = categoryResponse.categorias
+                    Log.d("callCategory", "Category list: $categoryList")
+                    onComplete(categoryList)
+                    SharedPreferenceManager.saveCategoryList(context, categoryList)
+
+                } else {
+                    Log.d("callCategory", "Event response is null")
+                    onComplete(null)
+                }
+            } else {
+                Log.d("callCategory", "ResponseApi ERROR -> " + response.message())
+                onComplete(null)
+            }
+        }
+
+        override fun onFailure(call: Call<CategoryResponse?>, t: Throwable) {
             Log.d("Response", "ResponseApi FAILURE -> " + t.printStackTrace().toString())
             onComplete(null)
         }

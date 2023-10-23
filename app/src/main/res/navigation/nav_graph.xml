@@ -29,9 +29,9 @@
         android:name="com.example.ospedidos.ui.theme.view.EventScreen"
         android:label="EventScreen" />
     <composable
-        android:id="@+id/storeCategoryScreen"
-        android:name="com.example.ospedidos.ui.theme.view.StoreCategoryScreen"
-        android:label="StoreCategoryScreen" />
+        android:id="@+id/categoryScreen"
+        android:name="com.example.ospedidos.ui.theme.view.categoryScreen"
+        android:label="CategoryScreen" />
 
     <!-- actions -->
     <action
@@ -47,7 +47,7 @@
         android:id="@+id/action_moduleScreen_to_eventScreen"
         app:destination="@id/eventScreen" />
     <action
-        android:id="@+id/action_eventScreen_to_storeCategoryScreen"
-        app:destination="@id/storeCategoryScreen" />
+        android:id="@+id/action_eventScreen_to_categoryScreen"
+        app:destination="@id/categoryScreen" />
 
 </navigation>
