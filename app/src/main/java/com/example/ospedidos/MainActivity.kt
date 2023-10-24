@@ -26,11 +26,14 @@ import com.example.ospedidos.model.event.EventResponse
 import com.example.ospedidos.model.login.Authenticator
 import com.example.ospedidos.model.modules.Modulo
 import com.example.ospedidos.model.modules.ModuloResponse
+import com.example.ospedidos.model.product.Product
+import com.example.ospedidos.model.product.ProductResponse
 import com.example.ospedidos.service.api.Api
 import com.example.ospedidos.service.api.RetrofitInterface
 import com.example.ospedidos.ui.theme.OsPedidosTheme
 import com.example.ospedidos.ui.theme.view.EventScreen
 import com.example.ospedidos.ui.theme.view.ModuleScreen
+import com.example.ospedidos.ui.theme.view.OrderScreen
 import com.example.ospedidos.utils.SharedPreferenceManager
 import retrofit2.Call
 import retrofit2.Callback
@@ -117,6 +120,11 @@ class MainActivity : ComponentActivity() {
                     navController = navController
                 )
             }
+            composable("orderScreen") {
+                OrderScreen(
+                    navController = navController
+                )
+            }
         }
     }
 }
@@ -155,6 +163,7 @@ fun callLogin(
                 var embed = authentication?.login?.embed
                 var user = authentication?.login?.usuario
                 var idEvent: String
+                var idCategory: String
 
                 SharedPreferenceManager.saveLoginData(context, slug, embed, user)
 
@@ -178,11 +187,29 @@ fun callLogin(
                                                     context,
                                                     listaDeCategorias
                                                 )
-                                                val idEvent = listaDeCategorias[0].id_categoria
-                                                SharedPreferenceManager.saveIdEvent(
+                                                val idCategory = listaDeCategorias[0].id_categoria
+                                                SharedPreferenceManager.saveIdCategory(
                                                     context,
-                                                    idEvent
+                                                    idCategory
                                                 )
+                                                if (slug != null && embed != null && user != null && idEvent != null && idCategory != null) {
+
+                                                    callProduct(context, slug, embed, user, idEvent, idCategory, navController) { listaDeProdutos ->
+                                                        if (listaDeProdutos != null) {
+                                                            SharedPreferenceManager.saveProductList(
+                                                                context,
+                                                                listaDeProdutos
+                                                            )
+                                                            val idProduct = listaDeProdutos[0].id
+                                                            SharedPreferenceManager.saveIdProduct(
+                                                                context,
+                                                                idProduct
+                                                            )
+                                                        }
+                                                    }
+
+                                                }
+
                                             }
                                         }
 
@@ -373,6 +400,60 @@ fun callCategory(
         }
 
         override fun onFailure(call: Call<CategoryResponse?>, t: Throwable) {
+            Log.d("Response", "ResponseApi FAILURE -> " + t.printStackTrace().toString())
+            onComplete(null)
+        }
+    })
+}
+
+fun callProduct(
+    context: Context,
+    slug: String?,
+    embed: String?,
+    username: String?,
+    idEvent: String?,
+    idCategory: String?,
+    navController: NavController,
+    onComplete: (List<Product>?) -> Unit
+) {
+    val idEvent = SharedPreferenceManager.getIdEvent(context)
+    val idCategory = SharedPreferenceManager.getCategoryList(context)[0].id_categoria
+
+    val service: RetrofitInterface = Api().service
+    val call: Call<ProductResponse>? = service.products(
+        "application/json",
+        "Basic dXNlcmFwaTphSzM4N0tSZ3hPU202bUV2YXlGVTIxeENGNlZQUDBu",
+        slug,
+        embed,
+        username,
+        idEvent,
+        idCategory
+    )
+
+    call?.enqueue(object : Callback<ProductResponse?> {
+        override fun onResponse(
+            call: Call<ProductResponse?>,
+            response: Response<ProductResponse?>
+        ) {
+            if (response.isSuccessful) {
+                val productResponse = response.body()
+                if (productResponse != null) {
+                    val productList: List<Product> = productResponse.produtos
+                    Log.d("callProducts", "Products list: $productList")
+                    onComplete(productList)
+                    SharedPreferenceManager.saveProductList(context, productList)
+
+                } else {
+                    Log.d("callProducts", "Product response is null")
+                    onComplete(null)
+                }
+            } else {
+                Log.d("callProducts", "ResponseApi ERROR -> " + response.message())
+                onComplete(null)
+            }
+        }
+
+        override fun onFailure(call: Call<ProductResponse?>, t: Throwable) {
             Log.d("Response", "ResponseApi FAILURE -> " + t.printStackTrace().toString())
             onComplete(null)
         }

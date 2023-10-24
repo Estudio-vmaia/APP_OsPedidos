@@ -32,6 +32,10 @@
         android:id="@+id/categoryScreen"
         android:name="com.example.ospedidos.ui.theme.view.categoryScreen"
         android:label="CategoryScreen" />
+    <composable
+        android:id="@+id/orderScreen"
+        android:name="com.example.ospedidos.ui.theme.view.orderScreen"
+        android:label="OrderScreen" />
 
     <!-- actions -->
     <action
@@ -49,5 +53,8 @@
     <action
         android:id="@+id/action_eventScreen_to_categoryScreen"
         app:destination="@id/categoryScreen" />
+    <action
+        android:id="@+id/action_categoryScreen_to_orderScreen"
+        app:destination="@id/orderScreen" />
 
 </navigation>

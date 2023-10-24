@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.example.ospedidos.model.category.Category
 import com.example.ospedidos.model.event.Event
+import com.example.ospedidos.model.product.Product
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -14,7 +15,10 @@ object SharedPreferenceManager {
     private const val KEY_USER = "user"
     private const val KEY_EVENT_LIST = "eventList"
     private const val KEY_ID_EVENT= "idEvent"
+    private const val KEY_ID_CATEGORY= "idCategory"
+    private const val KEY_ID_PRODUCT= "idProduct"
     private const val KEY_CATEGORY_LIST = "categoryList"
+    private const val KEY_PRODUCT_LIST = "categoryList"
 
     private fun getSharedPreferences(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -45,9 +49,25 @@ object SharedPreferenceManager {
         editor.putString(KEY_ID_EVENT, idEvent)
         editor.apply()
     }
+    fun saveIdCategory(context: Context, idCategory: String) {
+        val editor = getSharedPreferences(context).edit()
+        editor.putString(KEY_ID_CATEGORY, idCategory)
+        editor.apply()
+    }
+    fun saveIdProduct(context: Context, idProduct: String) {
+        val editor = getSharedPreferences(context).edit()
+        editor.putString(KEY_ID_PRODUCT, idProduct)
+        editor.apply()
+    }
 
     fun getIdEvent(context: Context): String? {
         return getSharedPreferences(context).getString(KEY_ID_EVENT, null)
+    }
+    fun getIdCategory(context: Context): String? {
+        return getSharedPreferences(context).getString(KEY_ID_CATEGORY, null)
+    }
+    fun getIdProduct(context: Context): String? {
+        return getSharedPreferences(context).getString(KEY_ID_PRODUCT, null)
     }
     fun saveEventList(context: Context, eventList: List<Event>) {
         val json = Gson().toJson(eventList)
@@ -81,6 +101,25 @@ object SharedPreferenceManager {
         val json = prefs.getString("categoryList", null)
         return if (json != null) {
             val type = object : TypeToken<List<Category>>() {}.type
+            Gson().fromJson(json, type)
+        } else {
+            emptyList()
+        }
+    }
+
+    fun saveProductList(context: Context, productList: List<Product>) {
+        val json = Gson().toJson(productList)
+        val prefs = context.getSharedPreferences(KEY_PRODUCT_LIST, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putString("productList", json)
+        editor.apply()
+    }
+
+    fun getProductList(context: Context): List<Product> {
+        val prefs = context.getSharedPreferences(KEY_PRODUCT_LIST, Context.MODE_PRIVATE)
+        val json = prefs.getString("productList", null)
+        return if (json != null) {
+            val type = object : TypeToken<List<Product>>() {}.type
             Gson().fromJson(json, type)
         } else {
             emptyList()

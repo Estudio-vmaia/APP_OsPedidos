@@ -41,9 +41,10 @@ fun CategoryScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    if (categoria.nome == "Quermesse 2023") {
-                        // Lógica para o evento Quermesse 2023
-                    } else {
+                    if (categoria.nome == "BEBIDAS") {
+                        navController.navigate("orderScreen") {
+                            popUpTo("eventScreen") { inclusive = true }
+                        }                    } else {
                         // Lógica para lidar com outros eventos
                     }
                 },

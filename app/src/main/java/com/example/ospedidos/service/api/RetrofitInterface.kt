@@ -4,6 +4,7 @@ import com.example.ospedidos.model.category.CategoryResponse
 import com.example.ospedidos.model.event.EventResponse
 import com.example.ospedidos.model.login.Authenticator
 import com.example.ospedidos.model.modules.ModuloResponse
+import com.example.ospedidos.model.product.ProductResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -56,4 +57,15 @@ interface RetrofitInterface {
         @Query("usuario") user: String?,
         @Query("idEvento") idEvent: String?,
     ): Call<CategoryResponse>?
+
+    @GET("/API/produtos.php?")
+    fun products(
+        @Header("Content-Type") contentType: String,
+        @Header("Authorization") authorization: String,
+        @Query("slug") slug: String?,
+        @Query("embed") embed: String?,
+        @Query("usuario") user: String?,
+        @Query("idEvento") idEvent: String?,
+        @Query("idCategoria") idCategory: String?,
+    ): Call<ProductResponse>?
 }
