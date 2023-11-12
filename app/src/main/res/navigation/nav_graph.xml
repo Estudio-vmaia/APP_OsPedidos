@@ -30,7 +30,7 @@
         android:label="EventScreen" />
     <composable
         android:id="@+id/categoryScreen"
-        android:name="com.example.ospedidos.ui.theme.view.categoryScreen"
+        android:name="com.example.ospedidos.presentation.view.categoryScreen"
         android:label="CategoryScreen" />
     <composable
         android:id="@+id/orderScreen"

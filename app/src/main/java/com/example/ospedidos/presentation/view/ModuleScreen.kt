@@ -1,4 +1,4 @@
-package com.example.ospedidos.ui.theme.view
+package com.example.ospedidos.presentation.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,16 +11,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.ospedidos.model.event.Event
-import com.example.ospedidos.model.modules.Modulo
-import com.example.ospedidos.model.modules.ModuloResponse
+import com.example.ospedidos.presentation.model.event.Event
+import com.example.ospedidos.presentation.model.modules.Modulo
+import com.example.ospedidos.presentation.model.modules.ModuloResponse
 import com.google.gson.Gson
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModuleScreen(
     navController: NavController,
-    modulesState: State<List<Modulo>>
+    modulesState: State<List<Modulo>>,
+    onModuleSelected: (String) -> Unit
 ) {
     val modules = modulesState.value
     var eventList by remember { mutableStateOf(emptyList<Event>()) }
@@ -45,14 +46,10 @@ fun ModuleScreen(
         itemsIndexed(modules) { index, modulo ->
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                    onClick = {
-                        if (modulo.nomeModulo == "Eventos") {
-                            // Chame a função callEvents com os parâmetros apropriados
-                           navController.navigate("eventScreen")
-                        } else {
-                            // Lógica para lidar com outros módulos
-                        }
-                    },
+                onClick = {
+                    // Use o nome do módulo como rótulo do botão
+                    onModuleSelected(modulo.nomeModulo)
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = modulo.nomeModulo)
@@ -115,6 +112,17 @@ fun ModuleScreenPreview() {
     val gson = Gson()
     val data = gson.fromJson(json, ModuloResponse::class.java)
 
-    ModuleScreen(navController = navController, modulesState = remember { mutableStateOf(data.modulos) })
+    ModuleScreen(
+        navController = navController,
+        modulesState = remember { mutableStateOf(data.modulos) },
+        onModuleSelected = { moduleName ->
+            // Lide com a seleção do módulo aqui
+            if (moduleName == "Eventos") {
+                navController.navigate("eventScreen")
+            } else {
+                // Lógica para lidar com outros módulos
+            }
+        }
+    )
 }
 

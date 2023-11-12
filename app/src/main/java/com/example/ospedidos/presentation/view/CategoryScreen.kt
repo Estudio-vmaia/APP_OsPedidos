@@ -1,25 +1,29 @@
-import androidx.compose.foundation.layout.*
+package com.example.ospedidos.presentation.view
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import com.example.ospedidos.presentation.model.event.Event
 import com.example.ospedidos.utils.SharedPreferenceManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryScreen(
-    navController: NavController
+    navController: NavController,
+    selectedEvent: Event?
 ) {
-
     val savedCategoryList = SharedPreferenceManager.getCategoryList(LocalContext.current)
-
 
     LazyColumn(
         modifier = Modifier
@@ -36,21 +40,21 @@ fun CategoryScreen(
             )
         }
 
-        // Crie um item para cada evento na lista
-        itemsIndexed(savedCategoryList) { index, categoria ->
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = {
-                    if (categoria.nome == "BEBIDAS") {
-                        navController.navigate("orderScreen") {
-                            popUpTo("eventScreen") { inclusive = true }
-                        }                    } else {
-                        // Lógica para lidar com outros eventos
+        // Crie um item para cada categoria no evento selecionado
+        for (categoria in savedCategoryList) {
+            if (categoria.id_evento == selectedEvent?.id) {
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            // Navega para a tela OrderScreen
+                            navController.navigate("orderScreen")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = categoria.nome)
                     }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = categoria.nome)
+                }
             }
         }
 
@@ -66,11 +70,3 @@ fun CategoryScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
-@Composable
-fun CategoryScreenPreview() {
-    val navController = rememberNavController()
-    CategoryScreen(navController = navController)
-
-}

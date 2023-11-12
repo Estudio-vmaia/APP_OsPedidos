@@ -1,6 +1,9 @@
-package com.example.ospedidos.model.event
+package com.example.ospedidos.presentation.model.event
 
 data class EventResponse(
+    val arrayName: String,
+    val arrayColunas: String,
+    val arrayKeys: String,
     val eventos: List<Event>
 )
 

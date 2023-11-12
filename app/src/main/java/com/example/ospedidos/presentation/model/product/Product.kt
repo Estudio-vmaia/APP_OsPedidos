@@ -1,4 +1,4 @@
-package com.example.ospedidos.model.product
+package com.example.ospedidos.presentation.model.product
 
 data class ProductResponse(
     val produtos: List<Product>

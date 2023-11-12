@@ -1,10 +1,10 @@
 package com.example.ospedidos.service.api
 
-import com.example.ospedidos.model.category.CategoryResponse
-import com.example.ospedidos.model.event.EventResponse
-import com.example.ospedidos.model.login.Authenticator
-import com.example.ospedidos.model.modules.ModuloResponse
-import com.example.ospedidos.model.product.ProductResponse
+import com.example.ospedidos.presentation.model.category.CategoryResponse
+import com.example.ospedidos.presentation.model.event.EventResponse
+import com.example.ospedidos.presentation.model.login.Authenticator
+import com.example.ospedidos.presentation.model.modules.ModuloResponse
+import com.example.ospedidos.presentation.model.product.ProductResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header

@@ -1,4 +1,4 @@
-package com.example.ospedidos.model.category
+package com.example.ospedidos.presentation.model.category
 
 data class CategoryResponse(
     val categorias: List<Category>

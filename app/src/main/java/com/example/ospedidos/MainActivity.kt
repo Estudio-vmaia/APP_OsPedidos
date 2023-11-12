@@ -1,6 +1,5 @@
 package com.example.ospedidos
 
-import CategoryScreen
 import LoginScreen
 import ResetPasswordLoginScreen
 import SendTokenScreen
@@ -19,21 +18,23 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.ospedidos.model.category.Category
-import com.example.ospedidos.model.category.CategoryResponse
-import com.example.ospedidos.model.event.Event
-import com.example.ospedidos.model.event.EventResponse
-import com.example.ospedidos.model.login.Authenticator
-import com.example.ospedidos.model.modules.Modulo
-import com.example.ospedidos.model.modules.ModuloResponse
-import com.example.ospedidos.model.product.Product
-import com.example.ospedidos.model.product.ProductResponse
+import com.example.ospedidos.presentation.model.category.Category
+import com.example.ospedidos.presentation.model.category.CategoryResponse
+import com.example.ospedidos.presentation.model.event.Event
+import com.example.ospedidos.presentation.model.event.EventResponse
+import com.example.ospedidos.presentation.model.login.Authenticator
+import com.example.ospedidos.presentation.model.modules.Modulo
+import com.example.ospedidos.presentation.model.modules.ModuloResponse
+import com.example.ospedidos.presentation.model.product.Product
+import com.example.ospedidos.presentation.model.product.ProductResponse
+import com.example.ospedidos.presentation.presenter.LoginPresenter
+import com.example.ospedidos.presentation.view.CategoryScreen
+import com.example.ospedidos.presentation.view.ModuleScreen
+import com.example.ospedidos.presentation.view.OrderScreen
 import com.example.ospedidos.service.api.Api
 import com.example.ospedidos.service.api.RetrofitInterface
 import com.example.ospedidos.ui.theme.OsPedidosTheme
 import com.example.ospedidos.ui.theme.view.EventScreen
-import com.example.ospedidos.ui.theme.view.ModuleScreen
-import com.example.ospedidos.ui.theme.view.OrderScreen
 import com.example.ospedidos.utils.SharedPreferenceManager
 import retrofit2.Call
 import retrofit2.Callback
@@ -59,6 +60,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun MainContent(navController: NavHostController) {
         val modulesState = remember { mutableStateOf<List<Modulo>>(emptyList()) }
+        val loginPresenter = LoginPresenter(appContext)
         var username by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
         var phoneNumber by remember { mutableStateOf("") }
@@ -67,12 +69,12 @@ class MainActivity : ComponentActivity() {
         NavHost(navController, startDestination = "loginScreen") {
             composable("loginScreen") {
                 LoginScreen(
-                    username = username,
-                    password = password,
-                    onUsernameChange = { newUsername -> username = newUsername },
-                    onPasswordChange = { newPassword -> password = newPassword },
+                    username = loginPresenter.username,
+                    password = loginPresenter.password,
+                    onUsernameChange = { newUsername -> loginPresenter.username = newUsername },
+                    onPasswordChange = { newPassword -> loginPresenter.password = newPassword },
                     onLoginClick = {
-                        callLogin(appContext, username, password, navController) { listaDeModulos ->
+                        loginPresenter.performLogin(navController) { listaDeModulos ->
                             if (listaDeModulos != null) {
                                 modulesState.value = listaDeModulos // Atualize o estado dos módulos
                                 navController.navigate("moduleScreen") {
@@ -110,14 +112,40 @@ class MainActivity : ComponentActivity() {
                 )
             }
             composable("moduleScreen") {
-                ModuleScreen(navController = navController, modulesState = modulesState)
+                val moduleList = SharedPreferenceManager.getModuleList(this@MainActivity)
+                ModuleScreen(
+                    navController = navController,
+                    modulesState = remember { mutableStateOf(moduleList) },
+                    onModuleSelected = { moduleName ->
+                        // Lide com a seleção do módulo aqui
+                        if (moduleName == "Eventos") {
+                            navController.navigate("eventScreen")
+                        } else {
+                            // Lógica para lidar com outros módulos
+                        }
+                    }
+                )
             }
             composable("eventScreen") {
-                EventScreen(navController = navController)
+                val savedEventResponse = SharedPreferenceManager.getEventResponseApi(appContext)
+                EventScreen(
+                    navController = navController,
+                    onEventSelected = { event ->
+                        if (savedEventResponse.first == "eventos") {
+                            navController.navigate("categoryScreen")
+                        } else {
+                            // Lógica para lidar com outros módulos
+                        }
+                    }
+                )
             }
             composable("categoryScreen") {
+                val eventId = SharedPreferenceManager.getIdEvent(appContext)
+                val selectedEvent: Event? = getEventById(appContext, eventId)
+
                 CategoryScreen(
-                    navController = navController
+                    navController = navController,
+                    selectedEvent = selectedEvent
                 )
             }
             composable("orderScreen") {
@@ -128,114 +156,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+fun getEventById(context: Context, eventId: String?): Event? {
+    if (eventId != null) {
+        val eventList = SharedPreferenceManager.getEventList(context)
+        return eventList.find { it.id == eventId }
+    }
+    return null
+}
 
 /*fun initValuesModules(slug: String?, embed: String?, user: String?){ //replace or persist with shared preferences
     Log.d("Slug:", "-> $slug")
     Log.d("Embed:", "-> $embed")
     Log.d("User:", "-> $user")
 }*/
-fun callLogin(
-    context: Context,
-    username: String,
-    password: String,
-    navController: NavController,
-    onComplete: (List<Modulo>?) -> Unit // Adicione esta função de callback
-) {
-    val numericPhoneNumber = username.filter { it.isDigit() }
-
-    val service: RetrofitInterface = Api().service
-    val call: Call<Authenticator?>? = service.loginApi(
-        "application/json",
-        "Basic dXNlcmFwaTphSzM4N0tSZ3hPU202bUV2YXlGVTIxeENGNlZQUDBu",
-        numericPhoneNumber,
-        password
-    )
-
-    call?.enqueue(object : Callback<Authenticator?> {
-        override fun onResponse(
-            call: Call<Authenticator?>,
-            response: Response<Authenticator?>
-        ) {
-            val authentication: Authenticator? = response.body()
-            if (response.isSuccessful) {
-                Log.d("Response", "ResponseApi ok -> " + authentication.toString())
-                var slug = authentication?.login?.slug
-                var embed = authentication?.login?.embed
-                var user = authentication?.login?.usuario
-                var idEvent: String
-                var idCategory: String
-
-                SharedPreferenceManager.saveLoginData(context, slug, embed, user)
-
-                callModules(slug, embed, user, navController) { listaDeModulos ->
-                    if (listaDeModulos != null) {
-                        onComplete(listaDeModulos) // Chame o callback com a lista de módulos
-                        navController.navigate("moduleScreen") {
-                            popUpTo("loginScreen") { inclusive = true }
-                        }
-                        if (slug != null && embed != null && user != null) {
-                            callEvent(context, slug, embed, user, navController) { listaDeEventos ->
-                                if (listaDeEventos != null) {
-                                    SharedPreferenceManager.saveEventList(context, listaDeEventos)
-                                    idEvent = listaDeEventos[0].id
-                                    SharedPreferenceManager.saveIdEvent(context, idEvent)
-                                    if (slug != null && embed != null && user != null && idEvent != null) {
-
-                                        callCategory(context, slug, embed, user, idEvent, navController) { listaDeCategorias ->
-                                            if (listaDeCategorias != null) {
-                                                SharedPreferenceManager.saveCategoryList(
-                                                    context,
-                                                    listaDeCategorias
-                                                )
-                                                val idCategory = listaDeCategorias[0].id_categoria
-                                                SharedPreferenceManager.saveIdCategory(
-                                                    context,
-                                                    idCategory
-                                                )
-                                                if (slug != null && embed != null && user != null && idEvent != null && idCategory != null) {
-
-                                                    callProduct(context, slug, embed, user, idEvent, idCategory, navController) { listaDeProdutos ->
-                                                        if (listaDeProdutos != null) {
-                                                            SharedPreferenceManager.saveProductList(
-                                                                context,
-                                                                listaDeProdutos
-                                                            )
-                                                            val idProduct = listaDeProdutos[0].id
-                                                            SharedPreferenceManager.saveIdProduct(
-                                                                context,
-                                                                idProduct
-                                                            )
-                                                        }
-                                                    }
-
-                                                }
-
-                                            }
-                                        }
-
-                                    }
-                                }
-                            }
-                        } else {
-                            // Lidar com a ausência de valores nas preferências compartilhadas
-                        }
-                    } else {
-                        // Lidar com o erro
-                    }
-                }
-
-            } else {
-                Log.d("Response", "ResponseApi ERROR -> " + response.message())
-
-            }
-        }
-
-        override fun onFailure(call: Call<Authenticator?>, t: Throwable) {
-            Log.d("Response", "ResponseApi FAILURE -> " + t.printStackTrace().toString())
-        }
-    })
-}
-
 fun callResetPasswordLogin(phoneNumber: String, navController: NavController) {
     val numericPhoneNumber = phoneNumber.filter { it.isDigit() }
 
@@ -337,6 +270,18 @@ fun callEvent(
                     Log.d("callEvent", "Event list: $eventList")
                     onComplete(eventList)
                     SharedPreferenceManager.saveEventList(context, eventList)
+                    for (evento in eventList) {
+                        SharedPreferenceManager.saveSelectedEventId(context, evento.id, evento.nome)
+                    }
+                    val arrayName = eventResponse.arrayName
+                    val arrayColunas = eventResponse.arrayColunas
+                    val arrayKeys = eventResponse.arrayKeys
+                    SharedPreferenceManager.saveEventResponseApi(
+                        context,
+                        arrayName,
+                        arrayColunas,
+                        arrayKeys
+                    )
 
                 } else {
                     Log.d("callEvent", "Event response is null")
@@ -364,7 +309,6 @@ fun callCategory(
     navController: NavController,
     onComplete: (List<Category>?) -> Unit
 ) {
-    val idEvent = SharedPreferenceManager.getIdEvent(context)
 
     val service: RetrofitInterface = Api().service
     val call: Call<CategoryResponse>? = service.category(

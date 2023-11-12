@@ -2,9 +2,10 @@ package com.example.ospedidos.utils
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.ospedidos.model.category.Category
-import com.example.ospedidos.model.event.Event
-import com.example.ospedidos.model.product.Product
+import com.example.ospedidos.presentation.model.category.Category
+import com.example.ospedidos.presentation.model.event.Event
+import com.example.ospedidos.presentation.model.modules.Modulo
+import com.example.ospedidos.presentation.model.product.Product
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -14,11 +15,15 @@ object SharedPreferenceManager {
     private const val KEY_EMBED = "embed"
     private const val KEY_USER = "user"
     private const val KEY_EVENT_LIST = "eventList"
-    private const val KEY_ID_EVENT= "idEvent"
-    private const val KEY_ID_CATEGORY= "idCategory"
-    private const val KEY_ID_PRODUCT= "idProduct"
+    private const val KEY_EVENT_RESPONSE_API = "eventList"
+    private const val KEY_MODULE_LIST = "moduleList"
+    private const val KEY_ID_EVENT = "idEvent"
+    private const val KEY_ID_CATEGORY = "idCategory"
+    private const val KEY_ID_PRODUCT = "idProduct"
     private const val KEY_CATEGORY_LIST = "categoryList"
     private const val KEY_PRODUCT_LIST = "categoryList"
+    private const val SELECTED_EVENT_ID_KEY = "SelectedEventId"
+
 
     private fun getSharedPreferences(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -49,11 +54,13 @@ object SharedPreferenceManager {
         editor.putString(KEY_ID_EVENT, idEvent)
         editor.apply()
     }
+
     fun saveIdCategory(context: Context, idCategory: String) {
         val editor = getSharedPreferences(context).edit()
         editor.putString(KEY_ID_CATEGORY, idCategory)
         editor.apply()
     }
+
     fun saveIdProduct(context: Context, idProduct: String) {
         val editor = getSharedPreferences(context).edit()
         editor.putString(KEY_ID_PRODUCT, idProduct)
@@ -63,12 +70,78 @@ object SharedPreferenceManager {
     fun getIdEvent(context: Context): String? {
         return getSharedPreferences(context).getString(KEY_ID_EVENT, null)
     }
+
     fun getIdCategory(context: Context): String? {
         return getSharedPreferences(context).getString(KEY_ID_CATEGORY, null)
     }
+
     fun getIdProduct(context: Context): String? {
         return getSharedPreferences(context).getString(KEY_ID_PRODUCT, null)
     }
+
+    fun saveModuleList(context: Context, moduleList: List<Modulo>) {
+        val json = Gson().toJson(moduleList)
+        val prefs = context.getSharedPreferences(KEY_MODULE_LIST, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putString("moduleList", json)
+        editor.apply()
+    }
+
+    fun getModuleList(context: Context): List<Modulo> {
+        val prefs = context.getSharedPreferences(KEY_MODULE_LIST, Context.MODE_PRIVATE)
+        val json = prefs.getString("moduleList", null)
+        return if (json != null) {
+            val type = object : TypeToken<List<Modulo>>() {}.type
+            Gson().fromJson(json, type)
+        } else {
+            emptyList()
+        }
+    }
+
+    fun saveSelectedEventId(context: Context, eventId: String, nome: String) {
+        val prefs = context.getSharedPreferences(SELECTED_EVENT_ID_KEY, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putString("eventId", eventId)
+        editor.putString("nome", nome)
+        editor.apply()
+    }
+
+    fun getSelectedEventId(context: Context): Pair<String, String>? {
+        val prefs = context.getSharedPreferences(SELECTED_EVENT_ID_KEY, Context.MODE_PRIVATE)
+        val eventId = prefs.getString("eventId", null)
+        val nome = prefs.getString("nome", null)
+        return if (eventId != null && nome != null) {
+            Pair(eventId, nome)
+        } else {
+            null
+        }
+    }
+
+
+    fun saveEventResponseApi(
+        context: Context,
+        arrayName: String,
+        arrayColunas: String,
+        arrayKeys: String
+    ) {
+        val prefs = context.getSharedPreferences(KEY_EVENT_RESPONSE_API, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putString("arrayName", arrayName)
+        editor.putString("arrayColunas", arrayColunas)
+        editor.putString("arrayKeys", arrayKeys)
+        editor.apply()
+    }
+    fun getEventResponseApi(context: Context): Triple<String?, String?, String?> {
+        val prefs = context.getSharedPreferences(KEY_EVENT_RESPONSE_API, Context.MODE_PRIVATE)
+
+        val arrayName = prefs.getString("arrayName", null)
+        val arrayColunas = prefs.getString("arrayColunas", null)
+        val arrayKeys = prefs.getString("arrayKeys", null)
+
+        return Triple(arrayName, arrayColunas, arrayKeys)
+    }
+
+
     fun saveEventList(context: Context, eventList: List<Event>) {
         val json = Gson().toJson(eventList)
         val prefs = context.getSharedPreferences(KEY_EVENT_LIST, Context.MODE_PRIVATE)

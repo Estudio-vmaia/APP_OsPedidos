@@ -12,7 +12,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.ospedidos.model.event.EventResponse
+import com.example.ospedidos.presentation.model.event.Event
+import com.example.ospedidos.presentation.model.event.EventResponse
 import com.example.ospedidos.utils.SharedPreferenceManager
 import com.google.gson.Gson
 
@@ -20,8 +21,8 @@ import com.google.gson.Gson
 @Composable
 fun EventScreen(
     navController: NavController,
-
-    ) {
+    onEventSelected: (Event) -> Unit
+) {
 
     val savedEventList = SharedPreferenceManager.getEventList(LocalContext.current)
 
@@ -46,13 +47,7 @@ fun EventScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    if (evento.nome == "Quermesse 2023") {
-                        navController.navigate("categoryScreen") {
-                            popUpTo("eventScreen") { inclusive = true }
-                        }
-                    } else {
-                        // Lógica para lidar com outros eventos
-                    }
+                    onEventSelected(evento)
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -116,7 +111,15 @@ fun EventScreenPreview() {
     val data = gson.fromJson(json, EventResponse::class.java)
 
     EventScreen(
-        navController = navController
+        navController = navController,
+        onEventSelected = { eventName ->
+            // Lide com a seleção do módulo aqui
+            if (eventName.nome == "Eventos") {
+                navController.navigate("eventScreen")
+            } else {
+                // Lógica para lidar com outros módulos
+            }
+        }
     )
 
 }

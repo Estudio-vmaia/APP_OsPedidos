@@ -1,4 +1,4 @@
-package com.example.ospedidos.model.modules
+package com.example.ospedidos.presentation.model.modules
 
 data class ModuloResponse(
     val modulos: List<Modulo>
