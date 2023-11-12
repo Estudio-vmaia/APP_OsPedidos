@@ -21,10 +21,14 @@ import com.google.gson.Gson
 @Composable
 fun EventScreen(
     navController: NavController,
-    onEventSelected: (Event) -> Unit
+    onEventSelected: (Event, String, String, String) -> Unit
 ) {
 
-    val savedEventList = SharedPreferenceManager.getEventList(LocalContext.current)
+    val context = LocalContext.current
+    val savedEventList = SharedPreferenceManager.getEventList(context)
+    val slug = SharedPreferenceManager.getSlug(context)!!
+    val embed = SharedPreferenceManager.getEmbed(context)!!
+    val user = SharedPreferenceManager.getUser(context)!!
 
 
     LazyColumn(
@@ -47,7 +51,7 @@ fun EventScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    onEventSelected(evento)
+                    onEventSelected(evento, slug, embed, user)
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -65,62 +69,5 @@ fun EventScreen(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
-@Composable
-fun EventScreenPreview() {
-    val navController = rememberNavController()
-
-    val json = """
-        {
-    "arrayName": "eventos",
-    "arrayColunas": "nome,id,dataini,horaini,datafim,horafim,acumulativo,tipocob,valorminimo,status",
-    "arrayKeys": 2,
-    "eventos": [
-        {
-            "nome": "Quermesse 2023",
-            "id": "60",
-            "dataini": "20230529",
-            "horaini": "1800",
-            "datafim": "20240730",
-            "horafim": "2200",
-            "acumulativo": "N",
-            "tipocob": "debit,credit,pix",
-            "valorminimo": null,
-            "status": "A"
-        },
-        {
-            "nome": "Quermesse 2027",
-            "id": "61",
-            "dataini": "20230529",
-            "horaini": "1800",
-            "datafim": "20240730",
-            "horafim": "2200",
-            "acumulativo": "N",
-            "tipocob": "debit,pix",
-            "valorminimo": null,
-            "status": "A"
-        }
-    ]
-}
-    """
-
-    val gson = Gson()
-    val data = gson.fromJson(json, EventResponse::class.java)
-
-    EventScreen(
-        navController = navController,
-        onEventSelected = { eventName ->
-            // Lide com a seleção do módulo aqui
-            if (eventName.nome == "Eventos") {
-                navController.navigate("eventScreen")
-            } else {
-                // Lógica para lidar com outros módulos
-            }
-        }
-    )
-
 }
 

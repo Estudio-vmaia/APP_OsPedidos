@@ -36,6 +36,10 @@
         android:id="@+id/orderScreen"
         android:name="com.example.ospedidos.ui.theme.view.orderScreen"
         android:label="OrderScreen" />
+    <composable
+        android:id="@+id/genericErrorScreen"
+        android:name="com.example.ospedidos.ui.theme.view.genericErrorScreen"
+        android:label="GenericErrorScreen" />
 
     <!-- actions -->
     <action
@@ -56,5 +60,8 @@
     <action
         android:id="@+id/action_categoryScreen_to_orderScreen"
         app:destination="@id/orderScreen" />
+    <action
+        android:id="@+id/action_eventScreen_to_genericErrorScreen"
+        app:destination="@id/genericErrorScreen" />
 
 </navigation>

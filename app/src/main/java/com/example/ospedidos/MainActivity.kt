@@ -29,6 +29,7 @@ import com.example.ospedidos.presentation.model.product.Product
 import com.example.ospedidos.presentation.model.product.ProductResponse
 import com.example.ospedidos.presentation.presenter.LoginPresenter
 import com.example.ospedidos.presentation.view.CategoryScreen
+import com.example.ospedidos.presentation.view.GenericErrorScreen
 import com.example.ospedidos.presentation.view.ModuleScreen
 import com.example.ospedidos.presentation.view.OrderScreen
 import com.example.ospedidos.service.api.Api
@@ -130,15 +131,18 @@ class MainActivity : ComponentActivity() {
                 val savedEventResponse = SharedPreferenceManager.getEventResponseApi(appContext)
                 EventScreen(
                     navController = navController,
-                    onEventSelected = { event ->
-                        if (savedEventResponse.first == "eventos") {
-                            navController.navigate("categoryScreen")
-                        } else {
-                            // Lógica para lidar com outros módulos
+                    onEventSelected = { evento, slug, embed, user ->
+                        callCategory(appContext, slug, embed, user, evento.id, navController) { listaDeCategorias ->
+                            if (listaDeCategorias != null) {
+                                navController.navigate("categoryScreen")
+                            } else {
+                                navController.navigate("genericErrorScreen")
+                            }
                         }
                     }
                 )
             }
+
             composable("categoryScreen") {
                 val eventId = SharedPreferenceManager.getIdEvent(appContext)
                 val selectedEvent: Event? = getEventById(appContext, eventId)
@@ -150,6 +154,11 @@ class MainActivity : ComponentActivity() {
             }
             composable("orderScreen") {
                 OrderScreen(
+                    navController = navController
+                )
+            }
+            composable("genericErrorScreen") {
+                GenericErrorScreen(
                     navController = navController
                 )
             }
