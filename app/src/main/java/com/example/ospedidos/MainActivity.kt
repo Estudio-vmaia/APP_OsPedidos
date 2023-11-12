@@ -149,7 +149,16 @@ class MainActivity : ComponentActivity() {
 
                 CategoryScreen(
                     navController = navController,
-                    selectedEvent = selectedEvent
+                    selectedEvent = selectedEvent,
+                    onCategorySelected = {slug, embed, user, idEvent, idCategoria ->
+                        callProduct(appContext, slug, embed, user, idEvent, idCategoria) { listaDeProdutos ->
+                            if (listaDeProdutos != null) {
+                                navController.navigate("orderScreen")
+                            } else {
+                                navController.navigate("genericErrorScreen")
+                            }
+                        }
+                    }
                 )
             }
             composable("orderScreen") {
@@ -366,12 +375,8 @@ fun callProduct(
     username: String?,
     idEvent: String?,
     idCategory: String?,
-    navController: NavController,
     onComplete: (List<Product>?) -> Unit
 ) {
-    val idEvent = SharedPreferenceManager.getIdEvent(context)
-    val idCategory = SharedPreferenceManager.getCategoryList(context)[0].id_categoria
-
     val service: RetrofitInterface = Api().service
     val call: Call<ProductResponse>? = service.products(
         "application/json",

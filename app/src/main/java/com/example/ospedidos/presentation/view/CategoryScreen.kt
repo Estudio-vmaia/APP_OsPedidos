@@ -21,9 +21,14 @@ import com.example.ospedidos.utils.SharedPreferenceManager
 @Composable
 fun CategoryScreen(
     navController: NavController,
-    selectedEvent: Event?
+    selectedEvent: Event?,
+    onCategorySelected: (String, String, String, String, String) -> Unit
 ) {
     val savedCategoryList = SharedPreferenceManager.getCategoryList(LocalContext.current)
+    val context = LocalContext.current
+    val slug = SharedPreferenceManager.getSlug(context)!!
+    val embed = SharedPreferenceManager.getEmbed(context)!!
+    val user = SharedPreferenceManager.getUser(context)!!
 
     LazyColumn(
         modifier = Modifier
@@ -47,8 +52,7 @@ fun CategoryScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = {
-                            // Navega para a tela OrderScreen
-                            navController.navigate("orderScreen")
+                            onCategorySelected(slug, embed, user, selectedEvent.id, categoria.id_categoria)
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {

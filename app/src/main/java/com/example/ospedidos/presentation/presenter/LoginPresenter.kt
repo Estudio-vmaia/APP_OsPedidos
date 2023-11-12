@@ -84,6 +84,7 @@ class LoginPresenter(private val context: Context) {
                                                         context,
                                                         idCategory
                                                     )
+/*
                                                     if (slug != null && embed != null && user != null && idEvent != null && idCategory != null) {
 
                                                         callProduct(
@@ -109,6 +110,7 @@ class LoginPresenter(private val context: Context) {
                                                         }
 
                                                     }
+*/
 
                                                 }
                                             }
