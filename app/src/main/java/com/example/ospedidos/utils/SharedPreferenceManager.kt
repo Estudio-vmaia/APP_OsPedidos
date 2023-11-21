@@ -23,6 +23,19 @@ object SharedPreferenceManager {
     private const val KEY_CATEGORY_LIST = "categoryList"
     private const val KEY_PRODUCT_LIST = "categoryList"
     private const val SELECTED_EVENT_ID_KEY = "SelectedEventId"
+    private const val KEY_PRODUCT_DATA = "productData"
+
+    fun saveProductData(context: Context, productData: String) {
+        val prefs = context.getSharedPreferences(KEY_PRODUCT_DATA, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putString("productData", productData)
+        editor.apply()
+    }
+
+    fun getProductData(context: Context): String? {
+        val prefs = context.getSharedPreferences(KEY_PRODUCT_DATA, Context.MODE_PRIVATE)
+        return prefs.getString("productData", null)
+    }
 
 
     private fun getSharedPreferences(context: Context): SharedPreferences {

@@ -163,7 +163,14 @@ class MainActivity : ComponentActivity() {
             }
             composable("orderScreen") {
                 OrderScreen(
-                    navController = navController
+                    navController = navController,
+                    onProductClick = { item, id, preco ->
+                        // Armazene os dados nos SharedPreferences aqui
+                        val productData = "Item: $item, ID: $id, Preço: $preco"
+                        SharedPreferenceManager.saveProductData(appContext, productData)
+
+                        // Adicional: você pode querer navegar para uma tela diferente ou fazer outra coisa aqui
+                    }
                 )
             }
             composable("genericErrorScreen") {

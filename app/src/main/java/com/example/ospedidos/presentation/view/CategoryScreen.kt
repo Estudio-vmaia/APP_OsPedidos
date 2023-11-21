@@ -12,10 +12,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.ospedidos.presentation.model.event.Event
 import com.example.ospedidos.utils.SharedPreferenceManager
+import java.text.NumberFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,7 +45,20 @@ fun CategoryScreen(
             Text(
                 text = "Os Pedidos - CATEGORIAS",
                 modifier = Modifier
+                    .padding(vertical = 16.dp)
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Total: " + formatCurrency(0.0),
+                fontSize = 24.sp,
+                modifier = Modifier
+                    .fillMaxWidth(1f)
                     .padding(vertical = 16.dp),
+                textAlign = TextAlign.Center
+
+
             )
         }
 
@@ -52,7 +69,13 @@ fun CategoryScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = {
-                            onCategorySelected(slug, embed, user, selectedEvent.id, categoria.id_categoria)
+                            onCategorySelected(
+                                slug,
+                                embed,
+                                user,
+                                selectedEvent.id,
+                                categoria.id_categoria
+                            )
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -74,3 +97,7 @@ fun CategoryScreen(
     }
 }
 
+private fun formatCurrency(value: Double): String {
+    val currencyFormat = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
+    return currencyFormat.format(value)
+}

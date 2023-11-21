@@ -9,14 +9,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.ospedidos.utils.SharedPreferenceManager
+import java.text.NumberFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderScreen(
-    navController: NavController
+    navController: NavController,
+    onProductClick: (String, String, String) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -26,13 +31,13 @@ fun OrderScreen(
     var totalValue by remember { mutableStateOf(0.0) }
     var isTotalValueVisible by remember { mutableStateOf(false) }
 
-    // Calcule o valor total dos produtos
+    /*// Calcule o valor total dos produtos
     productList?.forEach { product ->
         val productPrice = product.preco.toDoubleOrNull()
         if (productPrice != null) {
             totalValue
         }
-    }
+    }*/
 
     LazyColumn(
         modifier = Modifier
@@ -49,22 +54,17 @@ fun OrderScreen(
         }
 
         item {
-            if (isTotalValueVisible) {
-                Text(
-                    text = "Total: R$$totalValue",
-                    modifier = Modifier
-                        .padding(vertical = 16.dp)
-                        .clickable { isTotalValueVisible = !isTotalValueVisible }
-                )
-            } else {
-                Text(
-                    text = "Total: R$$totalValue",
-                    modifier = Modifier
-                        .padding(vertical = 16.dp)
-                        .clickable { isTotalValueVisible = !isTotalValueVisible }
-                        .padding(16.dp)
-                )
-            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Total: " + formatCurrency(0.0),
+                fontSize = 24.sp,
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .padding(vertical = 16.dp),
+                textAlign = TextAlign.Center
+
+
+            )
         }
 
         item {
@@ -79,7 +79,7 @@ fun OrderScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    // Lógica para adicionar o produto ao carrinho ou processar o pedido
+                    onProductClick(product.item, product.id, product.preco)
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -98,4 +98,8 @@ fun OrderScreen(
             }
         }
     }
+}
+private fun formatCurrency(value: Double): String {
+    val currencyFormat = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
+    return currencyFormat.format(value)
 }
