@@ -30,6 +30,7 @@ import androidx.compose.ui.window.Dialog
 @Composable
 fun CustomAlertDialog(
     productName: String,
+    productPrice: String,
     onQuantitySelected: (Int) -> Unit,
     onCloseClicked: () -> Unit
 ) {
@@ -48,10 +49,12 @@ fun CustomAlertDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
                     Text(text = productName)
+                    Text(text = "R$ $productPrice")
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),

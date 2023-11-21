@@ -13,6 +13,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.ospedidos.presentation.model.product.Product
 import com.example.ospedidos.utils.CustomAlertDialog
 import com.example.ospedidos.utils.SharedPreferenceManager
 import java.text.NumberFormat
@@ -24,23 +25,16 @@ fun OrderScreen(
     navController: NavController,
     onProductClick: (String, String, String) -> Unit
 ) {
+    var productName: String
     val context = LocalContext.current
 
     // Recupere a lista de produtos do SharedPreferences
     val productList = SharedPreferenceManager.getProductList(context)
 
     var totalValue by remember { mutableStateOf(0.0) }
-    var isTotalValueVisible by remember { mutableStateOf(false) }
     var isCustomAlertDialogVisible by remember { mutableStateOf(false) }
+    var selectedProduct: Product? by remember { mutableStateOf(null) }
 
-
-    /*// Calcule o valor total dos produtos
-    productList?.forEach { product ->
-        val productPrice = product.preco.toDoubleOrNull()
-        if (productPrice != null) {
-            totalValue
-        }
-    }*/
 
     LazyColumn(
         modifier = Modifier
@@ -82,9 +76,8 @@ fun OrderScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
+                    selectedProduct = product
                     isCustomAlertDialogVisible = true
-                    //onProductClick(product.item, product.id, product.preco)
-
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -103,9 +96,10 @@ fun OrderScreen(
             }
         }
     }
-    if (isCustomAlertDialogVisible) {
+    if (isCustomAlertDialogVisible && selectedProduct != null) {
         CustomAlertDialog(
-            productName = "Nome do Produto",
+            productName = selectedProduct!!.item,
+            productPrice = selectedProduct!!.preco,
             onQuantitySelected = { quantity -> /* Lógica para quantidade selecionada */ },
             onCloseClicked = {
                 // Lógica para fechar o CustomAlertDialog
