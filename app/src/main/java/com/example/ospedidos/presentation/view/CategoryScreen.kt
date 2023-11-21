@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.ospedidos.presentation.model.event.Event
+import com.example.ospedidos.utils.CustomAlertDialog
 import com.example.ospedidos.utils.SharedPreferenceManager
 import java.text.NumberFormat
 import java.util.Locale
@@ -33,6 +34,9 @@ fun CategoryScreen(
     val slug = SharedPreferenceManager.getSlug(context)!!
     val embed = SharedPreferenceManager.getEmbed(context)!!
     val user = SharedPreferenceManager.getUser(context)!!
+
+    //var isCustomAlertDialogVisible by remember { mutableStateOf(false) }
+
 
     LazyColumn(
         modifier = Modifier
@@ -88,14 +92,30 @@ fun CategoryScreen(
         item {
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { navController.popBackStack() }, // Navegar de volta
+                onClick = {
+                    //isCustomAlertDialogVisible = true
+                    navController.popBackStack()
+                          },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Voltar")
             }
         }
+
     }
+    /*if (isCustomAlertDialogVisible) {
+        CustomAlertDialog(
+            productName = "Nome do Produto",
+            onQuantitySelected = { quantity -> *//* Lógica para quantidade selecionada *//* },
+            onCloseClicked = {
+                // Lógica para fechar o AlertDialog
+                isCustomAlertDialogVisible = false
+            }
+        )
+    }*/
 }
+
+
 
 private fun formatCurrency(value: Double): String {
     val currencyFormat = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))

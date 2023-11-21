@@ -13,6 +13,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.ospedidos.utils.CustomAlertDialog
 import com.example.ospedidos.utils.SharedPreferenceManager
 import java.text.NumberFormat
 import java.util.Locale
@@ -30,6 +31,8 @@ fun OrderScreen(
 
     var totalValue by remember { mutableStateOf(0.0) }
     var isTotalValueVisible by remember { mutableStateOf(false) }
+    var isCustomAlertDialogVisible by remember { mutableStateOf(false) }
+
 
     /*// Calcule o valor total dos produtos
     productList?.forEach { product ->
@@ -79,7 +82,9 @@ fun OrderScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    onProductClick(product.item, product.id, product.preco)
+                    isCustomAlertDialogVisible = true
+                    //onProductClick(product.item, product.id, product.preco)
+
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -98,6 +103,17 @@ fun OrderScreen(
             }
         }
     }
+    if (isCustomAlertDialogVisible) {
+        CustomAlertDialog(
+            productName = "Nome do Produto",
+            onQuantitySelected = { quantity -> /* Lógica para quantidade selecionada */ },
+            onCloseClicked = {
+                // Lógica para fechar o CustomAlertDialog
+                isCustomAlertDialogVisible = false
+            }
+        )
+    }
+
 }
 private fun formatCurrency(value: Double): String {
     val currencyFormat = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
