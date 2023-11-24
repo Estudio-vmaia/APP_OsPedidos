@@ -1,6 +1,5 @@
 package com.example.ospedidos.presentation.view
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -14,7 +13,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.ospedidos.presentation.model.product.Product
+import com.example.ospedidos.presentation.presenter.ProductWithQuantity
 import com.example.ospedidos.utils.CustomAlertDialog
+import com.example.ospedidos.utils.CustomAlertDialogPayment
 import com.example.ospedidos.utils.SharedPreferenceManager
 import java.text.NumberFormat
 import java.util.Locale
@@ -25,7 +26,6 @@ fun OrderScreen(
     navController: NavController,
     onProductClick: (String, String, String) -> Unit
 ) {
-    var productName: String
     val context = LocalContext.current
 
     // Recupere a lista de produtos do SharedPreferences
@@ -33,8 +33,9 @@ fun OrderScreen(
 
     var totalValue by remember { mutableStateOf(0.0) }
     var isCustomAlertDialogVisible by remember { mutableStateOf(false) }
+    var isCustomAlertDialogPaymentVisible by remember { mutableStateOf(false) }
     var selectedProduct: Product? by remember { mutableStateOf(null) }
-
+    var selectedProducts by remember { mutableStateOf(mutableMapOf<Product, Int>()) }
 
     LazyColumn(
         modifier = Modifier
@@ -53,22 +54,26 @@ fun OrderScreen(
         item {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Total: " + formatCurrency(0.0),
+                text = "Total: " + formatCurrency(totalValue),
                 fontSize = 24.sp,
                 modifier = Modifier
                     .fillMaxWidth(1f)
                     .padding(vertical = 16.dp),
                 textAlign = TextAlign.Center
-
-
             )
         }
 
         item {
-            Text(
-                text = "Débito - Crédito",
-                modifier = Modifier.padding(vertical = 16.dp)
-            )
+            // Adiciona o botão "Formas de pagamento"
+            TextButton(
+                onClick = {
+                    // Mostra o CustomAlertDialogPayment
+                    isCustomAlertDialogPaymentVisible = true
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Formas de pagamento")
+            }
         }
 
         // Lista de botões dos produtos
@@ -96,11 +101,27 @@ fun OrderScreen(
             }
         }
     }
+
     if (isCustomAlertDialogVisible && selectedProduct != null) {
         CustomAlertDialog(
-            productName = selectedProduct!!.item,
-            productPrice = selectedProduct!!.preco,
-            onQuantitySelected = { quantity -> /* Lógica para quantidade selecionada */ },
+            productName = selectedProduct?.item ?: "",
+            productPrice = selectedProduct?.preco ?: "",
+            onQuantitySelected = { quantity ->
+                // Lógica para quantidade selecionada
+                selectedProduct?.let { product ->
+                    if (selectedProducts.containsKey(product)) {
+                        // Se o produto já foi selecionado, apenas atualize a quantidade
+                        selectedProducts[product] = quantity
+                    } else {
+                        // Se o produto ainda não foi selecionado, adicione-o ao mapa
+                        selectedProducts[product] = quantity
+                    }
+
+                    // Atualiza o valor total com a quantidade ajustada
+                    totalValue =
+                        selectedProducts.entries.sumByDouble { it.key.preco.toDouble() * it.value }
+                }
+            },
             onCloseClicked = {
                 // Lógica para fechar o CustomAlertDialog
                 isCustomAlertDialogVisible = false
@@ -108,7 +129,21 @@ fun OrderScreen(
         )
     }
 
+    if (isCustomAlertDialogPaymentVisible) {
+        CustomAlertDialogPayment(
+            onPaymentMethodSelected = { paymentMethod ->
+                // Lógica para lidar com a forma de pagamento selecionada
+                // Você pode imprimir, armazenar em uma variável, etc.
+                println("Forma de pagamento selecionada: $paymentMethod")
+            },
+            onCloseClicked = {
+                // Lógica para fechar o CustomAlertDialogPayment
+                isCustomAlertDialogPaymentVisible = false
+            }
+        )
+    }
 }
+
 private fun formatCurrency(value: Double): String {
     val currencyFormat = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
     return currencyFormat.format(value)

@@ -34,7 +34,7 @@ fun CustomAlertDialog(
     onQuantitySelected: (Int) -> Unit,
     onCloseClicked: () -> Unit
 ) {
-    var quantity by remember { mutableStateOf(1) }
+    var quantity by remember { mutableStateOf(0) }
 
     Dialog(
         onDismissRequest = onCloseClicked,
@@ -85,7 +85,12 @@ fun CustomAlertDialog(
                         horizontalArrangement = Arrangement.End
                     ) {
                         TextButton(
-                            onClick = onCloseClicked,
+                            onClick = {
+                                onCloseClicked()
+                                // Lógica para calcular o total com a quantidade selecionada
+                                val total = quantity * productPrice.toDouble()
+                                // Faça o que quiser com o total (por exemplo, atualizar o totalValue em OrderScreen)
+                            },
                             colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
                         ) {
                             Text("Fechar")
