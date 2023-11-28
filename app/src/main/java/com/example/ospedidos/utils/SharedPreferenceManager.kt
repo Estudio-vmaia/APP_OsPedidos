@@ -6,6 +6,7 @@ import com.example.ospedidos.presentation.model.category.Category
 import com.example.ospedidos.presentation.model.event.Event
 import com.example.ospedidos.presentation.model.modules.Modulo
 import com.example.ospedidos.presentation.model.product.Product
+import com.example.ospedidos.presentation.presenter.ProductWithQuantity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -24,6 +25,38 @@ object SharedPreferenceManager {
     private const val KEY_PRODUCT_LIST = "categoryList"
     private const val SELECTED_EVENT_ID_KEY = "SelectedEventId"
     private const val KEY_PRODUCT_DATA = "productData"
+    private const val KEY_CART = "productCart"
+    private const val KEY_TOTAL_VALUE = "totalValue"
+
+    fun saveTotalValue(context: Context, totalValue: Double) {
+        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putFloat(KEY_TOTAL_VALUE, totalValue.toFloat()) // Salvar como float
+        editor.apply()
+    }
+
+    fun getTotalValue(context: Context): Double {
+        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        return prefs.getFloat(KEY_TOTAL_VALUE, 0.0f).toDouble() // Retornar como double
+    }
+    fun saveCart(context: Context, cart: List<ProductWithQuantity>) {
+        val json = Gson().toJson(cart)
+        val prefs = context.getSharedPreferences(KEY_CART, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putString("cart", json)
+        editor.apply()
+    }
+
+    fun getCart(context: Context): List<ProductWithQuantity> {
+        val prefs = context.getSharedPreferences(KEY_CART, Context.MODE_PRIVATE)
+        val json = prefs.getString("cart", null)
+        return if (json != null) {
+            val type = object : TypeToken<List<ProductWithQuantity>>() {}.type
+            Gson().fromJson(json, type)
+        } else {
+            emptyList()
+        }
+    }
 
     fun saveProductData(context: Context, productData: String) {
         val prefs = context.getSharedPreferences(KEY_PRODUCT_DATA, Context.MODE_PRIVATE)

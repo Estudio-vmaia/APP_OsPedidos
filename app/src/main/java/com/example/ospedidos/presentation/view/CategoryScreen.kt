@@ -34,6 +34,16 @@ fun CategoryScreen(
     val slug = SharedPreferenceManager.getSlug(context)!!
     val embed = SharedPreferenceManager.getEmbed(context)!!
     val user = SharedPreferenceManager.getUser(context)!!
+    var totalValue by remember { mutableStateOf(0.0) }
+    val savedTotalValue = SharedPreferenceManager.getTotalValue(context)
+
+    if (savedTotalValue != null && savedTotalValue != 0.0) {
+        // Se não for nulo ou vazio, definir o totalValue com o valor recuperado
+        totalValue = savedTotalValue
+    } else {
+        // Se for nulo ou vazio, definir o totalValue como 0.0
+        totalValue = 0.0
+    }
 
     //var isCustomAlertDialogVisible by remember { mutableStateOf(false) }
 
@@ -55,7 +65,7 @@ fun CategoryScreen(
         item {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Total: " + formatCurrency(0.0),
+                text = "Total: " + formatCurrency(totalValue),
                 fontSize = 24.sp,
                 modifier = Modifier
                     .fillMaxWidth(1f)

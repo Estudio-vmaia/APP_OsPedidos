@@ -32,11 +32,19 @@ fun OrderScreen(
     val productList = SharedPreferenceManager.getProductList(context)
 
     var totalValue by remember { mutableStateOf(0.0) }
+    val savedTotalValue = SharedPreferenceManager.getTotalValue(context)
     var isCustomAlertDialogVisible by remember { mutableStateOf(false) }
     var isCustomAlertDialogPaymentVisible by remember { mutableStateOf(false) }
     var selectedProduct: Product? by remember { mutableStateOf(null) }
     var selectedProducts by remember { mutableStateOf(mutableMapOf<Product, Int>()) }
 
+    if (savedTotalValue != null && savedTotalValue != 0.0) {
+        // Se não for nulo ou vazio, definir o totalValue com o valor recuperado
+        totalValue = savedTotalValue
+    } else {
+        // Se for nulo ou vazio, definir o totalValue como 0.0
+        totalValue = 0.0
+    }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -94,9 +102,12 @@ fun OrderScreen(
         item {
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { navController.popBackStack() }, // Navegar de volta
+                onClick = {
+                    navController.popBackStack()
+                          }, // Navegar de volta
                 modifier = Modifier.fillMaxWidth()
             ) {
+                SharedPreferenceManager.saveTotalValue(context, totalValue)
                 Text(text = "Voltar")
             }
         }
@@ -123,6 +134,7 @@ fun OrderScreen(
                 }
             },
             onCloseClicked = {
+                SharedPreferenceManager.saveTotalValue(context, totalValue)
                 // Lógica para fechar o CustomAlertDialog
                 isCustomAlertDialogVisible = false
             }

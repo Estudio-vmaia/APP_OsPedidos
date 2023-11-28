@@ -164,13 +164,7 @@ class MainActivity : ComponentActivity() {
             composable("orderScreen") {
                 OrderScreen(
                     navController = navController,
-                    onProductClick = { item, id, preco ->
-                        // Armazene os dados nos SharedPreferences aqui
-                        val productData = "Item: $item, ID: $id, Preço: $preco"
-                        SharedPreferenceManager.saveProductData(appContext, productData)
-
-                        // Adicional: você pode querer navegar para uma tela diferente ou fazer outra coisa aqui
-                    }
+                    onProductClick = {name, price, otherInfo ->}
                 )
             }
             composable("genericErrorScreen") {
@@ -189,11 +183,6 @@ fun getEventById(context: Context, eventId: String?): Event? {
     return null
 }
 
-/*fun initValuesModules(slug: String?, embed: String?, user: String?){ //replace or persist with shared preferences
-    Log.d("Slug:", "-> $slug")
-    Log.d("Embed:", "-> $embed")
-    Log.d("User:", "-> $user")
-}*/
 fun callResetPasswordLogin(phoneNumber: String, navController: NavController) {
     val numericPhoneNumber = phoneNumber.filter { it.isDigit() }
 
